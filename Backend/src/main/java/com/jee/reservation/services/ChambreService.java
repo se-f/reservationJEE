@@ -64,7 +64,19 @@ public class ChambreService {
         return new ArrayList<>(chambresLibres);
     }
 
-//    public List<Chambre> getAllAvailableChambresByDates(LocalDate dateArrivee, LocalDate dateDepart) {
-//        return chambreRepository.findChambresByDisponibiliteBefore(dateArrivee);
-//    }
+    public List<Chambre> getAllAvailableChambresDisponiblesParType(String type) {
+        List<Chambre> chambresDisponibles = getAllAvailableChambres();
+        return chambresDisponibles.stream()
+                .filter(chambre -> chambre.getType().equals(type))
+                .toList();
+    }
+
+    public List<Chambre> getAllAvailableChambresDisponiblesParDateParType(String type, LocalDate dateArrivee, LocalDate dateDepart) {
+        List<Chambre> chambresDisponiblesParDate = getAllAvailableChambresByDates(dateArrivee, dateDepart);
+
+        return chambresDisponiblesParDate.stream()
+                .filter(chambre -> chambre.getType().equals(type))
+                .toList();
+    }
+
 }

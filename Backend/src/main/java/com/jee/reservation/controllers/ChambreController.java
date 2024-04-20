@@ -72,9 +72,7 @@ public class ChambreController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteChambre(@PathVariable Integer id) {
         chambreService.deleteChambre(id);
-
         reservationService.deleteAllByChambreid(id);
-
         return ResponseEntity.ok().build();
     }
 
@@ -94,10 +92,7 @@ public class ChambreController {
 
     @GetMapping("disponible/type/{type}")
     public ResponseEntity<List<Chambre>> getAllAvailableChambresDisponiblesParType(@PathVariable String type) {
-        List<Chambre> chambresDisponibles = chambreService.getAllAvailableChambres();
-        List<Chambre> chambres = chambresDisponibles.stream()
-                .filter(chambre -> chambre.getType().equals(type))
-                .toList();
+        List<Chambre> chambres = chambreService.getAllAvailableChambresDisponiblesParType(type);
         return ResponseEntity.ok(chambres);
     }
 
@@ -107,12 +102,8 @@ public class ChambreController {
              @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dateArrivee,
              @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dateDepart
             ) {
-        List<Chambre> chambresDisponiblesParDate = chambreService.getAllAvailableChambresByDates(dateArrivee, dateDepart);
 
-
-        List<Chambre> chambresDisponibles = chambresDisponiblesParDate.stream()
-                .filter(chambre -> chambre.getType().equals(type))
-                .toList();
+        List<Chambre> chambresDisponibles = chambreService.getAllAvailableChambresDisponiblesParDateParType(type, dateArrivee, dateDepart);
         return ResponseEntity.ok(chambresDisponibles);
     }
 

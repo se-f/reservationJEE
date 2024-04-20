@@ -57,6 +57,8 @@ public class SecurityConfiguration {
                             authorizeRequests.requestMatchers(HttpMethod.POST, "/login/**").permitAll();
 
                             authorizeRequests.requestMatchers(HttpMethod.GET, "/users/**").permitAll();
+                            authorizeRequests.requestMatchers(HttpMethod.PUT, "/users/**").permitAll();
+
 
                             authorizeRequests.requestMatchers("/users/**").hasAuthority("ADMIN");
 

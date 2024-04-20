@@ -7,6 +7,8 @@ import com.jee.reservation.models.Chambre;
 import com.jee.reservation.models.MyUser;
 import com.jee.reservation.models.Reservation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -24,7 +26,6 @@ public class ReservationService {
     @Autowired
     private MyUserRepository userRepository;
 
-
     public Reservation createReservation(Reservation reservation) {
 
         List<Reservation> reservationsOverlap = reservationRepository.findOverlappingReservationsParChambre(reservation.getDate_debut(), reservation.getDate_fin(), reservation.getChambre().getIdchambre());
@@ -40,7 +41,15 @@ public class ReservationService {
     }
 
     public Reservation getReservationById(Integer id) {
-        return reservationRepository.findById(id).orElse(null);
+        Reservation reservation = getReservationById(id);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        // si l'utilisateur actuellement authentifié est le propriétaire de la réservation ou bien admin
+        if (reservation.getUser().getUsername().equals(username) || isAdmin(authentication))
+            return reservationRepository.findById(id).orElse(null);
+        return null;
     }
 
     public Reservation updateReservation(Reservation reservation) {
@@ -49,15 +58,24 @@ public class ReservationService {
 
     public void deleteReservation(Integer id) {
         Reservation reservation = reservationRepository.findById(id).orElse(null);
-        Chambre chambre = reservation.getChambre();
-        chambre.setDisponibilite(LocalDate.now());
-        chambreRepository.save(chambre);
-        reservationRepository.deleteById(id);
+        if (reservation != null) {
+            Chambre chambre = reservation.getChambre();
+            chambre.setDisponibilite(LocalDate.now());
+            chambreRepository.save(chambre);
+            reservationRepository.deleteById(id);
+        }
     }
 
     public List<Reservation> getAllReservationsByUsername(String username) {
-        MyUser user = userRepository.getUserByUsername(username);
-        return reservationRepository.findAllByUser(user);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUser = authentication.getName();
+
+        // si l'utilisateur actuellement authentifié est celui qui veut accèder
+        if (currentUser.equals(username) || isAdmin(authentication)) {
+            MyUser user = userRepository.getUserByUsername(username);
+            return reservationRepository.findAllByUser(user);
+        } else return null;
     }
 
     public void deleteAllReservationsByUsername(String username) {
@@ -75,6 +93,15 @@ public class ReservationService {
 
     public void deleteAllByChambreid(Integer chambreId) {
         reservationRepository.deleteAllByChambreIdchambre(chambreId);
+    }
+
+
+    private boolean isAdmin(Authentication authentication) {
+
+        MyUser user = (MyUser) authentication.getPrincipal();
+        String role = user.getRole();
+
+        return role.equals("ADMIN");
     }
 
 

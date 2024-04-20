@@ -43,9 +43,10 @@ const HistoriqueReservations = () => {
               className="bg-white shadow-md rounded-lg p-6 flex items-center bg-slate-200 "
             >
               <div className="flex-1">
-                <h1 className="text-2xl font-bold mb-5">
+                <h1 className="text-2xl font-bold ">
                   Réservation n.{reservation.id_reservation}
                 </h1>
+                <p className="mb-5">Chambre {reservation.chambre.idchambre}</p>
                 <p className="text-lg text-gray-700">
                   <span className="font-semibold">Date de début:</span>{" "}
                   {reservation.date_debut}
