@@ -63,7 +63,7 @@ public class ReservationController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("")
+    @PutMapping()
     public ResponseEntity<Reservation> updateReservation(@RequestBody Reservation reservation) {
         Reservation updatedReservation = reservationService.updateReservation(reservation);
         return ResponseEntity.ok(updatedReservation);

@@ -32,7 +32,7 @@ const RegisterPage = () => {
       );
       toast.success("Registration successful");
       setTimeout(() => {
-        window.location.href = "/";
+        window.location.href = "/login";
       }, 1000);
       console.log("Registration successful", response.data);
     } catch (error) {

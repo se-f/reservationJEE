@@ -52,23 +52,27 @@ public class ChambreService {
 
     // trouver les réservations qui ne chevauchent pas les dates spécifiées
     public List<Chambre> getAllAvailableChambresByDates(LocalDate dateArrivee, LocalDate dateDepart) {
+
         // trouver les réservations qui chevauchent les dates spécifiées
         List<Reservation> reservationsOverlap = reservationRepository.findOverlappingReservations(dateArrivee, dateDepart);
-
         List<Integer> chambreIds = reservationsOverlap.stream() // transformer reservationsOverlap en stream
                 .map(chambre -> chambre.getChambre().getIdchambre())   // transformer chaque réservation en l'ID de la chambre
                 .collect(Collectors.toList());  // collecter les ID des chambres dans une liste
 
+        if (chambreIds.isEmpty())
+            return getAllChambres();
 
         List<Chambre> chambresLibres = chambreRepository.findAllByIdchambreIsNotIn(chambreIds);
         return new ArrayList<>(chambresLibres);
+
     }
 
     public List<Chambre> getAllAvailableChambresDisponiblesParType(String type) {
-        List<Chambre> chambresDisponibles = getAllAvailableChambres();
-        return chambresDisponibles.stream()
-                .filter(chambre -> chambre.getType().equals(type))
-                .toList();
+//        List<Chambre> chambresDisponibles = getAllAvailableChambres();
+//        return chambresDisponibles.stream()
+//                .filter(chambre -> chambre.getType().equals(type))
+//                .toList();
+        return chambreRepository.findAllByDisponibiliteBeforeAndType(LocalDate.now(), type);
     }
 
     public List<Chambre> getAllAvailableChambresDisponiblesParDateParType(String type, LocalDate dateArrivee, LocalDate dateDepart) {

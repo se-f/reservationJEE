@@ -41,13 +41,14 @@ public class ReservationService {
     }
 
     public Reservation getReservationById(Integer id) {
-        Reservation reservation = getReservationById(id);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 
+        Reservation reservation = reservationRepository.findById(id).orElse(null);
+
         // si l'utilisateur actuellement authentifié est le propriétaire de la réservation ou bien admin
-        if (reservation.getUser().getUsername().equals(username) || isAdmin(authentication))
+        if (reservation != null && (reservation.getUser().getUsername().equals(username) || isAdmin(authentication)))
             return reservationRepository.findById(id).orElse(null);
         return null;
     }
@@ -78,11 +79,6 @@ public class ReservationService {
         } else return null;
     }
 
-    public void deleteAllReservationsByUsername(String username) {
-        MyUser user = userRepository.getUserByUsername(username);
-        reservationRepository.deleteAllByUser(user);
-    }
-
     public List<Reservation> getAllReservations() {
         return reservationRepository.findAll();
     }
@@ -103,6 +99,4 @@ public class ReservationService {
 
         return role.equals("ADMIN");
     }
-
-
 }

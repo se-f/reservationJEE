@@ -43,12 +43,16 @@ public class SecurityConfiguration {
                             authorizeRequests.requestMatchers(HttpMethod.POST, "reservation/**").authenticated();
 
                             authorizeRequests.requestMatchers(HttpMethod.GET, "reservation/guest/**").authenticated();
+                            authorizeRequests.requestMatchers(HttpMethod.GET, "reservation/{id}").authenticated();
 
                             authorizeRequests.requestMatchers("reservation/**").hasAuthority("ADMIN");
+
+
 
                             /*     CHAMBRE     */
                             authorizeRequests.requestMatchers(HttpMethod.GET, "/chambre/**").permitAll();
                             authorizeRequests.requestMatchers("chambre/**").hasAuthority("ADMIN");
+
 
                             /*     AUTRES      */
                             authorizeRequests.requestMatchers("/v3/api-docs/**",

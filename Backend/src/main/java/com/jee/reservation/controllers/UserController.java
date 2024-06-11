@@ -8,7 +8,6 @@ import com.jee.reservation.services.MyUserDetailsService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -92,14 +91,5 @@ public class UserController {
         return ResponseEntity.status(403).build();
     }
 
-
-    private boolean isAdmin(Authentication authentication) {
-
-        // prob
-        MyUser user = (MyUser) authentication.getPrincipal();
-        String role = user.getRole();
-
-        return role.equals("ADMIN");
-    }
 
 }

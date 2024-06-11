@@ -61,12 +61,11 @@ public class ChambreController {
 
         Chambre updatedChambre = chambreService.updateChambre(chambre);
 
-        if (updatedChambre != null) {
+        if (updatedChambre != null)
             return ResponseEntity.ok(updatedChambre);
-        } else {
+        else
             return ResponseEntity.notFound().build();
-        }
-
+        
     }
 
     @DeleteMapping("/{id}")
