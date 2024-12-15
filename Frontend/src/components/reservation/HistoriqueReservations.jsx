@@ -1,33 +1,19 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import useReservationsForUser from "../../hooks/reservation/useReservationsForUser";
 
 const HistoriqueReservations = () => {
-  const [reservations, setReservations] = useState([]);
   const username = localStorage.getItem("username");
   const token = localStorage.getItem("token");
 
-  useEffect(() => {
-    const fetchReservations = async () => {
-      try {
-        console.log("Fetching reservations for user:", username);
-        const response = await axios.get(
-          `http://localhost:8081/reservation/guest/${username}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setReservations(response.data);
-      } catch (error) {
-        console.error("Error fetching reservations:", error);
-      }
-    };
+  // Use the custom hook to fetch reservations
+  const { reservations, loading, error } = useReservationsForUser(username, token);
 
-    if (username) {
-      fetchReservations();
-    }
-  }, [username]);
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -40,10 +26,10 @@ const HistoriqueReservations = () => {
           reservations.map((reservation) => (
             <div
               key={reservation.id_reservation}
-              className="bg-white shadow-md rounded-lg p-6 flex items-center bg-slate-200 "
+              className="bg-white shadow-md rounded-lg p-6 flex items-center bg-slate-200"
             >
               <div className="flex-1">
-                <h1 className="text-2xl font-bold ">
+                <h1 className="text-2xl font-bold">
                   Réservation n.{reservation.id_reservation}
                 </h1>
                 <p className="mb-5">Chambre {reservation.chambre.idchambre}</p>

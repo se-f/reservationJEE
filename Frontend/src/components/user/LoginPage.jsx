@@ -1,40 +1,7 @@
-import { useState } from "react";
-import axios from "axios";
-import { toast } from "react-toastify";
+import useLogin from "../../hooks/user/useLogin";
 
 const LoginPage = () => {
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-  });
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.post(
-        "http://localhost:8081/login",
-        formData
-      );
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("username", formData.username);
-      console.log(
-        "Login successful",
-        localStorage.getItem("token"),
-        localStorage.getItem("username")
-      );
-    
-      toast.success("Login successful");
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 1000);
-    } catch (error) {
-      console.error("Login failed", error);
-    }
-  };
+  const { formData, handleChange, handleSubmit } = useLogin();
 
   return (
     <div className="flex h-screen">

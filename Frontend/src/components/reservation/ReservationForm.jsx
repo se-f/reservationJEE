@@ -1,126 +1,7 @@
-import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import { toast } from "react-toastify";
-
-import axios from "axios";
+import { useReservationForm } from "../../hooks/reservation/useReservationForm";
 
 const ReservationForm = () => {
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-
-  const idChambre = queryParams.get("idchambre");
-  const username = localStorage.getItem("username");
-  const token = localStorage.getItem("token");
-
-  const initialFormData = {
-    date_debut: "",
-    date_fin: "",
-    nombre_personnes: 1,
-    status: "ON_HOLD",
-    chambre: {
-      idchambre: queryParams.get("idchambre") || 0,
-      type: "",
-      prix: "",
-    },
-    user: {
-      username: localStorage.getItem("username") || "",
-      email: "",
-      password: "",
-    },
-  };
-
-  const [formData, setFormData] = useState(initialFormData);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:8081/chambre/${idChambre}`
-        );
-        const chambreData = response.data;
-        setFormData((prevFormData) => ({
-          ...prevFormData,
-          chambre: {
-            ...prevFormData.chambre,
-            idchambre: chambreData.idchambre,
-            type: chambreData.type,
-            prix: chambreData.prix,
-            disponibilite: chambreData.disponibilite,
-            description: chambreData.description,
-            image: chambreData.image,
-          },
-        }));
-      } catch (error) {
-        console.error("Error fetching chambre data:", error);
-      }
-    };
-
-    fetchData();
-  }, [formData.chambre.idchambre]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:8081/users/${username}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const userData = response.data;
-        setFormData((prevFormData) => ({
-          ...prevFormData,
-          user: {
-            ...prevFormData.user,
-            iduser: userData.iduser,
-            email: userData.email,
-            password: userData.password,
-            role: userData.role,
-            username: userData.username,
-          },
-        }));
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
-
-    fetchData();
-  }, [formData.chambre.idchambre]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      console.log("formdata:", formData);
-      const response = await axios.post(
-        "http://localhost:8081/reservation",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log("Reservation created:", response.data);
-      toast.success("Réservation créée avec succès", {
-        position: "bottom-center",
-      });
-    } catch (error) {
-      console.error("Error creating reservation:", error);
-      toast.error("Error creating reservation, check dates", {
-        position: "bottom-center",
-      });
-    }
-  };
+  const { formData, handleChange, handleSubmit } = useReservationForm();
 
   return (
     <div className="bg-[url('https://www.shutterstock.com/shutterstock/videos/21658243/thumb/1.jpg?ip=x480')] bg-no-repeat bg-cover h-full py-8">
@@ -241,34 +122,20 @@ const ReservationForm = () => {
             readOnly
             value={formData.user.username}
             onChange={handleChange}
-            className="form-input mt-1 block w-full rounded-md px-4 py-2 cursor-not-allowed bg-gray-200"
+            className="form-input mt-1 block w-full rounded-md px-4 py-2 bg-slate-100"
             required
           />
         </div>
 
-        {/* Email */}
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-gray-700">
-            Email :
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.user.email}
-            onChange={handleChange}
-            readOnly
-            className="form-input mt-1 block w-full rounded-md px-4 py-2 bg-gray-200 cursor-not-allowed"
-            required
-          />
+        {/* Submit Button */}
+        <div className="flex justify-center">
+          <button
+            type="submit"
+            className="bg-blue-500 text-white rounded-md px-6 py-2 mt-4"
+          >
+            Réserver
+          </button>
         </div>
-
-        <button
-          type="submit"
-          className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
-        >
-          Réserver
-        </button>
       </form>
     </div>
   );

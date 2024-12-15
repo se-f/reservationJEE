@@ -1,44 +1,7 @@
-import { useState } from "react";
-import axios from "axios";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'; 
-
+import useRegister from "../../hooks/user/useRegister";
 
 const RegisterPage = () => {
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    role:"USER"
-  });
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      console.error("Passwords do not match");
-      toast.error("Passwords do not match");
-      return;
-    }
-    try {
-      console.log(formData);
-      const response = await axios.post(
-        "http://localhost:8081/register",
-        formData
-      );
-      toast.success("Registration successful");
-      setTimeout(() => {
-        window.location.href = "/login";
-      }, 1000);
-      console.log("Registration successful", response.data);
-    } catch (error) {
-      console.error("Registration failed", error);
-    }
-  };
+  const { formData, handleChange, handleSubmit } = useRegister();
 
   return (
     <div className="flex h-screen">

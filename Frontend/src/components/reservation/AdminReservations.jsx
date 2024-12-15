@@ -1,104 +1,21 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import { toast } from "react-toastify";
+import useReservations from "../../hooks/reservation/useReservations";
 
 const AllReservations = () => {
-  const [reservations, setReservations] = useState([]);
-  const [editedReservation, setEditedReservation] = useState(null);
-  const [editedStatus, setEditedStatus] = useState("");
-  const [deleteConfirmation, setDeleteConfirmation] = useState(false);
-  const [deleteId, setDeleteId] = useState("");
   const token = localStorage.getItem("token");
-
-  useEffect(() => {
-    const fetchReservations = async () => {
-      try {
-        const response = await axios.get("http://localhost:8081/reservation", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        console.log("response:",response.data);
-        setReservations(response.data);
-      } catch (error) {
-        console.error("Error fetching reservations:", error);
-      }
-    };
-
-    fetchReservations();
-  }, [token, deleteConfirmation, editedReservation]);
-
-  const handleDelete = async (id) => {
-    if (!deleteConfirmation) {
-      setDeleteConfirmation(true);
-      setDeleteId(id);
-    } else {
-      try {
-        await axios.delete(`http://localhost:8081/reservation/${deleteId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setReservations((prevReservations) =>
-          prevReservations.filter(
-            (reservation) => reservation.id_reservation !== deleteId
-          )
-        );
-        setDeleteConfirmation(false);
-        setDeleteId("");
-        toast.success("Deleted successfully!", { position: "bottom-center" });
-      } catch (error) {
-        console.error("Error deleting reservation:", error);
-      }
-    }
-  };
-
-  const handleEdit = (reservation) => {
-    setEditedReservation(reservation);
-    setEditedStatus(reservation.status);
-  };
-
-  const handleSave = async () => {
-    try {
-      delete editedReservation.user.authorities;
-      delete editedReservation.user.accountNonExpired;
-      delete editedReservation.user.accountNonLocked;
-      delete editedReservation.user.credentialsNonExpired;
-      delete editedReservation.user.enabled;
-
-      editedReservation.status = editedStatus;
-
-      await axios.put(
-        `http://localhost:8081/reservation`,
-        editedReservation,
-        {
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Content-Type": "application/json;charset=UTF-8",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setEditedReservation(null);
-      setEditedStatus("");
-      setDeleteConfirmation(false);
-      setDeleteId("");
-      toast.success("Reservation updated!", { position: "bottom-center" });
-    } catch (error) {
-      console.error("Error updating reservation:", error);
-    }
-  };
-
-  const handleChange = (e, field) => {
-    setEditedReservation({
-      ...editedReservation,
-      [field]: e.target.value,
-    });
-  };
-
-  const handleStatusChange = (e) => {
-    setEditedStatus(e.target.value);
-  };
+  const {
+    reservations,
+    editedReservation,
+    editedStatus,
+    deleteConfirmation,
+    deleteId,
+    handleDelete,
+    handleEdit,
+    handleSave,
+    handleChange,
+    handleStatusChange,
+    setDeleteId,
+    setDeleteConfirmation,
+  } = useReservations(token);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -177,14 +94,12 @@ const AllReservations = () => {
               <td className="border border-gray-400 px-4 py-2">
                 {deleteConfirmation &&
                 reservation.id_reservation === deleteId ? (
-                  <>
-                    <button
-                      onClick={() => handleDelete(deleteId)}
-                      className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded"
-                    >
-                      Confirmer
-                    </button>
-                  </>
+                  <button
+                    onClick={() => handleDelete(deleteId)}
+                    className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded"
+                  >
+                    Confirmer
+                  </button>
                 ) : (
                   <>
                     {!editedReservation ||

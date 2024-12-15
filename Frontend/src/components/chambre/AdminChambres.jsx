@@ -1,123 +1,19 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import { toast } from "react-toastify";
+import useChambres from "../../hooks/chambre/useChambres";
 
 const AllChambres = () => {
-  const [chambres, setChambres] = useState([]);
-  const [editedChambre, setEditedChambre] = useState(null);
-  const [deleteConfirmation, setDeleteConfirmation] = useState(false);
-  const [deleteId, setDeleteId] = useState("");
-  const [newChambre, setNewChambre] = useState({
-    type: "",
-    description: "",
-    prix: "",
-    disponibilite: "",
-    image: "",
-  });
   const token = localStorage.getItem("token");
-
-  useEffect(() => {
-    const fetchChambres = async () => {
-      try {
-        const response = await axios.get("http://localhost:8081/chambre", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setChambres(response.data);
-      } catch (error) {
-        console.error("Error fetching chambres:", error);
-      }
-    };
-
-    fetchChambres();
-  }, [token, deleteConfirmation, editedChambre]);
-
-  const handleDelete = async (id) => {
-    if (!deleteConfirmation) {
-      setDeleteConfirmation(true);
-      setDeleteId(id);
-    } else {
-      try {
-        await axios.delete(`http://localhost:8081/chambre/${deleteId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setChambres((prevChambres) =>
-          prevChambres.filter((chambre) => chambre.idchambre !== deleteId)
-        );
-        setDeleteConfirmation(false);
-        setDeleteId("");
-        toast.success("Chambre deleted successfully!", {
-          position: "bottom-center",
-        });
-      } catch (error) {
-        console.error("Error deleting chambre:", error);
-      }
-    }
-  };
-
-  const handleEdit = (chambre) => {
-    setEditedChambre(chambre);
-  };
-
-  const handleSave = async () => {
-    try {
-      await axios.put(
-        `http://localhost:8081/chambre/${editedChambre.idchambre}`,
-        editedChambre,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setEditedChambre(null);
-      toast.success("Chambre updated successfully!", {
-        position: "bottom-center",
-      });
-    } catch (error) {
-      console.error("Error updating chambre:", error);
-    }
-  };
-
-  const handleAddChambre = async () => {
-    console.log("Nouvelle chambre:", newChambre);
-    try {
-      await axios.post("http://localhost:8081/chambre", newChambre, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setNewChambre({
-        type: "",
-        description: "",
-        prix: "",
-        disponibilite: "",
-        image: "",
-      });
-      toast.success("Chambre added successfully!", {
-        position: "bottom-center",
-      });
-    } catch (error) {
-      console.error("Error adding chambre:", error);
-    }
-  };
-
-  const handleChange = (e, field) => {
-    if (editedChambre) {
-      setEditedChambre({
-        ...editedChambre,
-        [field]: e.target.value,
-      });
-    } else {
-      setNewChambre({
-        ...newChambre,
-        [field]: e.target.value,
-      });
-    }
-  };
+  const {
+    chambres,
+    editedChambre,
+    deleteConfirmation,
+    deleteId,
+    newChambre,
+    handleDelete,
+    handleEdit,
+    handleSave,
+    handleAddChambre,
+    handleChange,
+  } = useChambres(token);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -223,38 +119,33 @@ const AllChambres = () => {
               </td>
               <td className="border border-gray-400 px-4 py-2">
                 {deleteConfirmation && chambre.idchambre === deleteId ? (
-                  <>
-                    <button
-                      onClick={() => handleDelete(chambre.idchambre)}
-                      className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded"
-                    >
-                      Confirm
-                    </button>
-                  </>
+                  <button
+                    onClick={() => handleDelete(chambre.idchambre)}
+                    className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded"
+                  >
+                    Confirm
+                  </button>
                 ) : (
                   <>
                     {!editedChambre ||
                     editedChambre.idchambre !== chambre.idchambre ? (
                       <button
                         onClick={() => handleEdit(chambre)}
-                        className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded mr-2"
+                        className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded"
                       >
                         Edit
                       </button>
                     ) : (
                       <button
                         onClick={handleSave}
-                        className="bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded mr-2"
+                        className="bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded"
                       >
                         Save
                       </button>
                     )}
                     <button
-                      onClick={() => {
-                        setDeleteConfirmation(true);
-                        setDeleteId(chambre.idchambre);
-                      }}
-                      className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded"
+                      onClick={() => handleDelete(chambre.idchambre)}
+                      className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded ml-2"
                     >
                       Delete
                     </button>
